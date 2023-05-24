@@ -1,0 +1,47 @@
+# ubuntu换源脚本
+---
+- hosts: all
+  vars:
+    source_content: "
+# 清华源\n
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n                                                             
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n                                                        
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\n
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\n
+                                                       
+# 预 发 布 软 件 源 ， 不 建 议 启 用\n
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse\n
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse\n
+"
+
+  tasks:
+  # 关闭共享内存
+  - name: close swap
+    shell: swapoff -a
+    ignore_errors: yes
+
+  # 备份原有源
+  - name: backup sources.list
+    shell: mv /etc/apt/sources.list /etc/apt/sources_init.list
+    ignore_errors: yes
+
+  # 创建source.list文件
+  - name: create sources.list
+    shell: touch /etc/apt/sources.list
+    ignore_errors: yes
+
+  # 更新source.list文件
+  - name: update sources.list
+    shell: echo "{{ source_content }}" > /etc/apt/sources.list
+    ignore_errors: yes
+
+  # ansible 更新源
+  - name: update and upgrade apt packages
+    apt: >
+      upgrade=yes
+      update_cache=yes
+      cache_valid_time=3600

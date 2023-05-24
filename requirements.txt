@@ -1,0 +1,4 @@
+ansible==2.9.7
+Jinja2==2.11.2
+python-gitlab==1.12.1
+PyYAML==5.3.1

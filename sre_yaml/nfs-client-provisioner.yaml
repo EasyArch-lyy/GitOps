@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-provisioner
+  namespace: bdqn
+spec:
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccount: nfs-provisioner
+      containers:
+      - name: nfs-client-provisioner
+        # 需要根据k8s集群版本选择nfs-subdir-external-provisione，该镜像针对k8s 1.20以上版本
+        image: registry.cn-beijing.aliyuncs.com/xngczl/nfs-subdir-external-provisione:v4.0.0
+        volumeMounts:
+        - name: nfs-client-root
+          mountPath: /persistentvolumes
+        env:
+        - name: PROVISIONER_NAME
+          value: bdqn-test
+        - name: NFS_SERVER
+          # 指定nfs-server 地址或主机名
+          value: 10.0.24.9
+        - name: NFS_PATH
+          # 共享的路径
+          value: /data/nfs/volumns
+      volumes:
+      - name: nfs-client-root
+        nfs:
+          server: 10.0.24.9
+          path: /data/nfs/volumns
